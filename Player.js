@@ -62,82 +62,120 @@ function Player(startX, startY, height) {
     
     
 
-	//Collision detection
+	// Collision detection against another object with rectangular bounds
 	this.collides = function(obj2){
 		
-		var collided = false;
-		//Check bottom
+		// Flagged when a collision is detected
+        var collided = false;
+        
+		// Check bottom
         if (((this.bottom - obj2.bottom) <= (this.speedY - obj2.fSpeedY())) && this.x < obj2.right && this.right > obj2.x && this.bottom >= (obj2.y - (this.speedY + obj2.fSpeedY()))) {
+
+            // If other object is not a checkpoint
             if (!obj2.save){
-           		/*if (obj2.vertical){
-           			this.speedY = obj2.fSpeedY();
-           			this.bottom = obj2.y + obj2.fSpeedY();
-                	this.y = obj2.y + obj2.fSpeedY() - this.height;
-           		} else{*/
+                
+                // Stop vertical movement
                 this.speedY = 0;
-           			//if ((obj2.bottom > obj2.negLim && obj2.vertical && obj2.y < obj2.posLim)){
+                
+                // If other object is not an electric current
                 if(!obj2.deadly){
+                    
+                    // Set player to standing on other object
                     this.bottom = obj2.y;
                     this.y = obj2.y - this.height;
                 }
-                //}
-           		//}
+                
+                // If player is not already on ground
            		if (!this.onGround){
+                    
+                    // Play sound upon landing depending on what type of ground it is
            			if (series == 0 || series == 2){
+                        
+                        // Soft ground
                         snd_player_land_snow.currentTime = 0;
                         snd_player_land_snow.play();
            			}else{
+                        
+                        // Hard ground
                         snd_player_land.currentTime = 0;
                         snd_player_land.play();
            			}
            		}
                 
+                // Set platformSpeed to the speed of any horizontal platform the player's on
                 if((obj2.x > obj2.negLim && !obj2.vertical && obj2.x < obj2.posLim)){
                 	this.platformSpeed = obj2.fSpeedX();
                 }else{
                 	this.platformSpeed = 0;
                 }
+                
+                // Set to kill player if collided with a deadly object
                 if (obj2.deadly) this.dead = true;
-                //if (obj2 == exit) transition = true;
+                
+                // Flag as collided to be used in update
                 collided = true;
             } else{
+                
+                // Update player restart if collision with checkpoint
                 this.startX = obj2.startX;
                 this.startY = obj2.startY;
             }
         }
+        
         //Check left
         if (((obj2.right - this.x) <= (obj2.fSpeedX() - this.speedX - this.platformSpeed)) && this.y < obj2.bottom && this.bottom > obj2.y && this.x <= (obj2.right + (obj2.fSpeedX() - this.speedX))){
+            
+            // If other object is not a checkpoint
         	if (!obj2.save){
+                
+                // Stop horizontal movement
                 this.speedX = 0;
+                
+                // Lock player to position of on other object
                 this.x = obj2.right;
                 this.right = this.x + this.width;
+                
+                // Set to kill player if collided with a deadly object
                 if (obj2.deadly) this.dead = true;
+                
+                // Flag left as collided to be used in update
                 this.hitLeft = true;
             } else{
+                
+                // Update player restart if collision with checkpoint
                 this.startX = obj2.startX;
                 this.startY = obj2.startY;
-                //for(var i = 0; i < checkpoints.length; ++i){
-                //    checkpoints[i].on = false;
-                //}
+                
+                // Activate checkpoint with animation
                 obj2.on = true;
             }
 
         }
         //Check right
         if (((this.right - obj2.x) <= (this.speedX + this.platformSpeed - obj2.fSpeedX())) && this.y < obj2.bottom && this.bottom > obj2.y && this.right >= (obj2.x - (this.speedX - obj2.fSpeedX()))){
-        	if (!obj2.save){
+        	
+            // If other object is not a checkpoint
+            if (!obj2.save){
+                
+                // Stop horizontal movement
                 this.speedX = 0;
+                
+                // Lock player to position of on other object
                 this.right = obj2.x;
                 this.x = this.right - this.width;
                 
+                // Set to kill player if collided with a deadly object
                 if (obj2.deadly) this.dead = true;
+                
+                // Flag right as collided to be used in update
                 this.hitRight = true;
             } else{
+                
+                // Update player restart if collision with checkpoint
                 this.startX = obj2.startX;
                 this.startY = obj2.startY;
-                //for(var i = 0; i < checkpoints.length; ++i){
-                //    checkpoints[i].on = false;
-                //}
+                
+                // Activate checkpoint with animation
                 obj2.on = true;
             }
 
@@ -145,21 +183,37 @@ function Player(startX, startY, height) {
         }
         //Check top
         if (((obj2.bottom - this.y) <= (obj2.fSpeedY() - this.speedY)) && this.x < obj2.right && this.right > obj2.x && this.y <= obj2.bottom) {
+            
+            // If other object is not a checkpoint
             if (!obj2.save){
+                
+                // Set vertical movement to other
                 this.speedY = obj2.fSpeedY();
+                
+                // Lock player to position of on other object
                 this.y = obj2.bottom;
                 this.bottom = obj2.bottom + this.height;
+                
+                // Set to kill player if collided with a deadly object
                 if (obj2.deadly) this.dead = true;
+                
+                // Flag top as collided to be used in update
                 this.hitTop = true;
             } else{
+                
+                // Update player restart if collision with checkpoint
                 this.startX = obj2.startX;
                 this.startY = obj2.startY;
             }
 
         }
+        // Return collided
 	    return collided;
 	}
-
+    
+    
+    
+    
     this.update = function () {
     	
     	if((this.hitRight && this.hitLeft) || (this.hitTop && this.onGround)){
@@ -203,6 +257,8 @@ function Player(startX, startY, height) {
         //ctx.fillRect(this.x, this.y, cellSize, this.height);
         
     }
+    
+    
     
     this.draw = function() {
     	if (this.dead){
