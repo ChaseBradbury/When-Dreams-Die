@@ -4,8 +4,8 @@
  * All parameters passed in are based on cellSize, the height should be between 1 and 2 in most cases.
  
  Members
- * startX and startY define where in pixels the player's top left coordinate initially is. This is per level and checkpoint and determines where the player will restart. Note: converted into pixels from startX and startY parameters, which are based on grid placement.
- * width and height define the size in pixels of the player in units of cellSize. Note: height converted into pixels from height parameter, which is based on grid cell size.
+ * startX and startY define where in pixels the player's top left coordinate initially is. This is per level or checkpoint and determines where the player will restart. Note: converted into pixels from startX and startY parameters, which are based on grid placement.
+ * width and height define the size in pixels of the player. Note: height converted into pixels from height parameter, which is based on grid cell size.
  * x and y define where in pixels the player's top left coordinate is on each update. Used to display sprite and in collision as the left and top coordinates respectively.
  * bottom and right define where in pixels the bottom and right collision coordinates are with respect to the x and y coordinates.
  * speedX is how fast the player is moving horizontally. Affected by the right and left arrow keys.
@@ -213,48 +213,56 @@ function Player(startX, startY, height) {
     
     
     
-    
+    // Handle the updates per frame
     this.update = function () {
     	
+        // If player is squished between top and bottom, or left and right
     	if((this.hitRight && this.hitLeft) || (this.hitTop && this.onGround)){
-    		//this.onGround = false;
-    		//this.speedY = -11;
     		this.dead = true;
     	}
     	
+        // Flag game for restart if player's dead
     	if(this.dead){
     		restart = true;
     		this.speedX = 0;
     		this.speedY = 0;
-    		//this.x = camera.leftLim + this.startX;
-    		//this.y = camera.topLim + this.startY;
     	}
 
-        
+        // If player is on the ground or platform
         if (this.onGround) {
+            
+            // Stop vertical movement
             this.speedY = 0;
-            //if ((!this.hitRight || this.platformSpeed < 0) && (!this.hitLeft || this.platformSpeed > 0)){
+            
+            // Move horizontally if not collided with either left or right
             if(!(this.hitLeft || this.hitRight)){
-            this.x += this.platformSpeed;
-            this.right += this.platformSpeed;
+                this.x += this.platformSpeed;
+                this.right += this.platformSpeed;
             }
-            //}
         } else {
+            
+            // If player not on ground and flagged as dead
         	if(!this.dead){
-            this.speedY += gravity;
-            this.y += this.speedY;
-            this.bottom += this.speedY;
-           }
+                
+                // Accellerate with gravity
+                this.speedY += gravity;
+                
+                // Move vertically
+                this.y += this.speedY;
+                this.bottom += this.speedY;
+            }
         }
-        this.x += this.speedX;
-        this.right += this.speedX;
         
+        // Move horizontally if either moving right and not collided on right, or moving left and not collided on left
+        if((this.speedX > 0 && !this.hitRight) || (this.speedX < 0 && !this.hitLeft)){
+            this.x += this.speedX;
+            this.right += this.speedX;
+        }
+        
+        // Set hit flags to false
         this.hitRight = false;
         this.hitLeft = false;
         this.hitTop = false;
-        
-        //ctx.fillStyle = "red";
-        //ctx.fillRect(this.x, this.y, cellSize, this.height);
         
     }
     
